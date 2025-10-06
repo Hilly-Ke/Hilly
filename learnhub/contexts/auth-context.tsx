@@ -24,22 +24,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Check for stored user session
-    const storedUser = localStorage.getItem("learnhub_user")
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser)
-        setAuthState({
-          user,
-          isAuthenticated: true,
-          isLoading: false,
-        })
-      } catch {
-        localStorage.removeItem("learnhub_user")
-        setAuthState((prev) => ({ ...prev, isLoading: false }))
+    const hydrate = () => {
+      const storedUser = localStorage.getItem("learnhub_user")
+      if (storedUser) {
+        try {
+          const user = JSON.parse(storedUser)
+          setAuthState({
+            user,
+            isAuthenticated: true,
+            isLoading: false,
+          })
+          return
+        } catch {
+          localStorage.removeItem("learnhub_user")
+        }
       }
-    } else {
       setAuthState((prev) => ({ ...prev, isLoading: false }))
     }
+
+    hydrate()
+
+    // Listen for auth changes from other tabs/windows
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "learnhub_user") {
+        hydrate()
+      }
+    }
+    window.addEventListener("storage", onStorage)
+    return () => window.removeEventListener("storage", onStorage)
   }, [])
 
   const login = async (email: string, password: string) => {
@@ -87,6 +99,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAuthenticated: false,
       isLoading: false,
     })
+    // Redirect to home page on logout
+    window.location.href = '/'
   }
 
   return (

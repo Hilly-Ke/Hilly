@@ -17,20 +17,23 @@ interface CourseContentProps {
   course: Course
 }
 
-// Mock lesson data based on course
+// Deterministic lesson data (avoid SSR/CSR mismatch)
 const generateLessons = (course: Course) => {
   const lessons = []
   const lessonsPerModule = Math.ceil(course.lessons / 4)
 
+  const deterministicDuration = (module: number, lesson: number) => 10 + ((module * 7 + lesson * 3) % 21)
+
   for (let module = 1; module <= 4; module++) {
     const moduleTitle = getModuleTitle(course.category, module)
     for (let lesson = 1; lesson <= lessonsPerModule && lessons.length < course.lessons; lesson++) {
+      const isVideo = ((module + lesson) % 3) !== 0 // 2/3 video, 1/3 reading
       lessons.push({
         id: `${course.id}-${module}-${lesson}`,
         title: `${moduleTitle} - Lesson ${lesson}`,
-        duration: `${Math.floor(Math.random() * 20) + 10} min`,
-        type: Math.random() > 0.3 ? "video" : "reading",
-        completed: Math.random() > 0.7,
+        duration: `${deterministicDuration(module, lesson)} min`,
+        type: isVideo ? "video" : "reading",
+        completed: false,
         locked: lessons.length > 2, // First 3 lessons unlocked
         module: module,
       })
@@ -139,6 +142,9 @@ export function CourseContent({ course }: CourseContentProps) {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold">Lesson Materials</h3>
             <div className="flex items-center gap-2">
+              <Button variant="outline" size="sm" asChild>
+                <a href="/courses">Back to Courses</a>
+              </Button>
               <Button onClick={() => handleLessonComplete(activeLesson)} variant="outline" size="sm">
                 Mark as Complete
               </Button>

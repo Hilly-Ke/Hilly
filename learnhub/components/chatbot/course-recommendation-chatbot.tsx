@@ -92,6 +92,18 @@ export function CourseRecommendationChatbot() {
       if (data.preferences) {
         setUserPreferences((prev) => ({ ...prev, ...data.preferences }))
       }
+      // If we have nextQuestion, proactively nudge the user
+      if (data.nextQuestion && typeof data.nextQuestion === "string") {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: (Date.now() + 2).toString(),
+            type: "bot",
+            content: data.nextQuestion,
+            timestamp: new Date(),
+          },
+        ])
+      }
     } catch (error) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),

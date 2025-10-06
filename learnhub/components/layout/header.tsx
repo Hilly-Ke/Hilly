@@ -18,14 +18,28 @@ export function Header({ currentPage = "" }: HeaderProps) {
     { href: "/", label: "Home", icon: Home, active: currentPage === "home" },
     { href: "/courses", label: "Courses", icon: GraduationCap, active: currentPage === "courses" },
     { href: "/quizzes", label: "Quizzes", icon: Layers, active: currentPage === "quizzes" },
-    { href: "/community", label: "Community", icon: Users, active: currentPage === "community" },
     { href: "/about", label: "About", icon: Info, active: currentPage === "about" },
   ]
 
-  const authenticatedItems = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, active: currentPage === "dashboard" },
-    { href: "/certificates", label: "Certificates", icon: Award, active: currentPage === "certificates" },
-  ]
+  const getSignedInNavItems = () => {
+    const baseItems = [
+      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, active: currentPage === "dashboard" },
+      { href: "/courses", label: "Courses", icon: GraduationCap, active: currentPage === "courses" },
+      { href: "/community", label: "Community", icon: Users, active: currentPage === "community" },
+    ]
+    
+    // Add quizzes for students only
+    if (user?.role === "student") {
+      baseItems.splice(1, 0, { href: "/quizzes", label: "Quizzes", icon: Layers, active: currentPage === "quizzes" })
+    }
+    
+    // Add about page based on role
+    // Don't show about for students, teachers, and admins as per requirements
+    
+    return baseItems
+  }
+  
+  const signedInNavItems = getSignedInNavItems()
 
   const adminItems = [{ href: "/admin", label: "Admin", icon: Settings, active: currentPage === "admin" }]
 
@@ -41,7 +55,7 @@ export function Header({ currentPage = "" }: HeaderProps) {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
-            {navigationItems.map((item) => (
+            {(isAuthenticated ? signedInNavItems : navigationItems).map((item) => (
               <a
                 key={item.href}
                 href={item.href}
@@ -53,20 +67,6 @@ export function Header({ currentPage = "" }: HeaderProps) {
                 {item.label}
               </a>
             ))}
-
-            {isAuthenticated &&
-              authenticatedItems.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center gap-2 transition-colors ${
-                    item.active ? "text-primary font-medium" : "text-gray-600 hover:text-primary"
-                  }`}
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </a>
-              ))}
 
             {user?.role === "administrator" &&
               adminItems.map((item) => (
@@ -103,7 +103,7 @@ export function Header({ currentPage = "" }: HeaderProps) {
                   <a href="/login">Sign In</a>
                 </Button>
                 <Button size="sm" asChild>
-                  <a href="/login">Get Started</a>
+                  <a href="/">Get Started</a>
                 </Button>
               </>
             )}
@@ -119,7 +119,7 @@ export function Header({ currentPage = "" }: HeaderProps) {
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 pb-4 border-t pt-4">
             <nav className="flex flex-col space-y-3">
-              {navigationItems.map((item) => (
+              {(isAuthenticated ? signedInNavItems : navigationItems).map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
@@ -132,21 +132,6 @@ export function Header({ currentPage = "" }: HeaderProps) {
                   {item.label}
                 </a>
               ))}
-
-              {isAuthenticated &&
-                authenticatedItems.map((item) => (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center gap-2 transition-colors ${
-                      item.active ? "text-primary font-medium" : "text-gray-600 hover:text-primary"
-                    }`}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    {item.label}
-                  </a>
-                ))}
 
               {user?.role === "administrator" &&
                 adminItems.map((item) => (

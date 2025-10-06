@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/auth-context"
 import { progressTracker } from "@/lib/progress-tracking"
 import { mockCourses } from "@/lib/courses"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { CourseProgressCard } from "./course-progress-card"
 import { BookOpen, Award, Clock, TrendingUp } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -79,22 +80,36 @@ export function ProgressDashboard() {
 
       {/* Enrolled Courses */}
       <div>
-        <h2 className="text-2xl font-bold mb-4">My Courses</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold">My Courses</h2>
+          {enrolledCourses.length > 0 && (
+            <Button variant="outline" size="sm" asChild>
+              <a href="/courses">Browse More Courses</a>
+            </Button>
+          )}
+        </div>
+        
         {enrolledCourses.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {enrolledCourses.map(({ course, progress }) => (
-              <CourseProgressCard
-                key={course!.id}
-                course={course!}
-                progress={progress}
-                onContinue={() => router.push(`/courses/${course!.id}`)}
-              />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {enrolledCourses.map((item) => (
+              item && (
+                <CourseProgressCard
+                  key={item.course.id}
+                  course={item.course}
+                  progress={item.progress}
+                  onContinue={() => router.push(`/courses/${item.course.id}`)}
+                />
+              )
             ))}
           </div>
         ) : (
           <Card>
-            <CardContent className="flex items-center justify-center h-32">
-              <p className="text-muted-foreground">No courses enrolled yet. Browse our catalog to get started!</p>
+            <CardContent className="flex flex-col items-center justify-center h-48 text-center p-6">
+              <BookOpen className="h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground mb-4">No courses enrolled yet. Browse our catalog to get started!</p>
+              <Button asChild>
+                <a href="/courses">Explore Courses</a>
+              </Button>
             </CardContent>
           </Card>
         )}

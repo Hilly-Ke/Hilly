@@ -1,5 +1,6 @@
 import type { Course } from "@/lib/courses"
-import { Star, Users, Clock, Calendar } from "lucide-react"
+import { Star, Users, Clock, Calendar, ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface CourseHeaderProps {
   course: Course
@@ -9,6 +10,14 @@ export function CourseHeader({ course }: CourseHeaderProps) {
   return (
     <div className="bg-gradient-to-r from-primary/10 to-primary/5 border-b">
       <div className="container mx-auto px-4 py-12">
+        <div className="flex items-center justify-between mb-6">
+          <Button variant="outline" size="sm" asChild>
+            <a href="/courses" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Courses
+            </a>
+          </Button>
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           <div>
             <div className="flex items-center gap-2 mb-4">

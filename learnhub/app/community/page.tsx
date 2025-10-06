@@ -59,6 +59,65 @@ export default function CommunityPage() {
       ),
     )
   }
+  
+  const handleAddComment = (postId: string, comment: string) => {
+    if (!isAuthenticated) {
+      window.location.href = "/login"
+      return
+    }
+    
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === postId
+          ? {
+              ...p,
+              replies: [
+                ...p.replies,
+                {
+                  id: `${Date.now()}-${p.replies.length}`,
+                  content: comment,
+                  author: {
+                    id: "me",
+                    name: "You",
+                    role: "student",
+                  },
+                  createdAt: new Date(),
+                  upvotes: 0,
+                  downvotes: 0,
+                  attachments: [],
+                },
+              ],
+            }
+          : p,
+      ),
+    )
+  }
+  
+  const handleVoteComment = (postId: string, commentId: string, type: "up" | "down") => {
+    if (!isAuthenticated) {
+      window.location.href = "/login"
+      return
+    }
+    
+    setPosts((prev) =>
+      prev.map((p) =>
+        p.id === postId
+          ? {
+              ...p,
+              replies: p.replies.map((r) =>
+                r.id === commentId
+                  ? {
+                      ...r,
+                      upvotes: type === "up" ? r.upvotes + 1 : r.upvotes,
+                      downvotes: type === "down" ? r.downvotes + 1 : r.downvotes,
+                    }
+                  : r,
+              ),
+            }
+          : p,
+      ),
+    )
+  }
 
   const handleCreatePost = (postData: any) => {
     const newPost: ForumPost = {
@@ -177,7 +236,14 @@ export default function CommunityPage() {
         {filteredPosts.length > 0 ? (
           <div className="space-y-6">
             {filteredPosts.map((post) => (
-              <PostCard key={post.id} post={post} onPostClick={handlePostClick} onVote={handleVote} />
+              <PostCard 
+                key={post.id} 
+                post={post} 
+                onPostClick={handlePostClick} 
+                onVote={handleVote}
+                onAddComment={handleAddComment}
+                onVoteComment={handleVoteComment}
+              />
             ))}
           </div>
         ) : (

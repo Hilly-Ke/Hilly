@@ -132,7 +132,7 @@ export function VideoPlayer({ video, onComplete, onProgress }: VideoPlayerProps)
         >
           <video
             ref={videoRef}
-            className="w-full aspect-video"
+            className="w-full aspect-video max-h-[70vh]"
             poster={video.thumbnail || "/video-thumbnail.png"}
             preload="metadata"
             onClick={handlePlayPause}

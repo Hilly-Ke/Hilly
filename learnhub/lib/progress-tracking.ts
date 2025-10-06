@@ -50,7 +50,27 @@ export class ProgressTracker {
       if (stored) {
         try {
           const data = JSON.parse(stored)
-          this.progressData = new Map(Object.entries(data))
+          const revived = new Map<string, UserProgress>()
+          for (const [userId, raw] of Object.entries<any>(data)) {
+            const up: UserProgress = {
+              userId: raw.userId,
+              coursesProgress: (raw.coursesProgress || []).map((cp: any) => ({
+                ...cp,
+                enrolledAt: cp.enrolledAt ? new Date(cp.enrolledAt) : new Date(),
+                lastAccessedAt: cp.lastAccessedAt ? new Date(cp.lastAccessedAt) : new Date(),
+                certificateEarnedAt: cp.certificateEarnedAt ? new Date(cp.certificateEarnedAt) : undefined,
+                lessonsProgress: (cp.lessonsProgress || []).map((lp: any) => ({
+                  ...lp,
+                  completedAt: lp.completedAt ? new Date(lp.completedAt) : undefined,
+                })),
+              })),
+              totalCoursesCompleted: raw.totalCoursesCompleted || 0,
+              totalTimeSpent: raw.totalTimeSpent || 0,
+              achievements: raw.achievements || [],
+            }
+            revived.set(userId, up)
+          }
+          this.progressData = revived
         } catch (error) {
           console.error("Failed to load progress data:", error)
         }
@@ -81,6 +101,15 @@ export class ProgressTracker {
   getCourseProgress(userId: string, courseId: string): CourseProgress | null {
     const userProgress = this.getUserProgress(userId)
     return userProgress.coursesProgress.find((cp) => cp.courseId === courseId) || null
+  }
+
+  unenrollFromCourse(userId: string, courseId: string): void {
+    const userProgress = this.getUserProgress(userId)
+    const originalCount = userProgress.coursesProgress.length
+    userProgress.coursesProgress = userProgress.coursesProgress.filter((cp) => cp.courseId !== courseId)
+    if (userProgress.coursesProgress.length !== originalCount) {
+      this.saveToStorage()
+    }
   }
 
   enrollInCourse(userId: string, courseId: string, totalLessons?: number): void {

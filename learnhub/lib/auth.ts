@@ -98,6 +98,15 @@ export class AuthService {
     userRecord.lastLogin = new Date()
 
     const { password: _, failedAttempts: __, lockedUntil: ___, ...user } = userRecord
+
+    // Set a simple auth cookie so middleware allows protected routes
+    if (typeof document !== "undefined") {
+      const sevenDays = 7 * 24 * 60 * 60
+      // SameSite=Lax mitigates CSRF on navigations; add Secure in production envs
+      const secure = location.protocol === "https:" ? "; Secure" : ""
+      document.cookie = `auth_token=${encodeURIComponent(user.id)}; Max-Age=${sevenDays}; Path=/; SameSite=Lax${secure}`
+    }
+
     return { success: true, user }
   }
 
@@ -128,6 +137,13 @@ export class AuthService {
     mockUsers.push(newUser)
 
     const { password: _, failedAttempts: __, ...user } = newUser
+
+    if (typeof document !== "undefined") {
+      const sevenDays = 7 * 24 * 60 * 60
+      const secure = location.protocol === "https:" ? "; Secure" : ""
+      document.cookie = `auth_token=${encodeURIComponent(user.id)}; Max-Age=${sevenDays}; Path=/; SameSite=Lax${secure}`
+    }
+
     return { success: true, user }
   }
 
@@ -135,6 +151,9 @@ export class AuthService {
     // Clear any stored session data
     if (typeof window !== "undefined") {
       localStorage.removeItem("learnhub_user")
+    }
+    if (typeof document !== "undefined") {
+      document.cookie = "auth_token=; Max-Age=0; Path=/"
     }
   }
 }

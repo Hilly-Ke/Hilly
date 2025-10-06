@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -16,12 +17,15 @@ interface RegisterFormProps {
 }
 
 export function RegisterForm({ onSuccess }: RegisterFormProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     role: "student" as UserRole,
   })
+  const [confirmPassword, setConfirmPassword] = useState("")
   const [error, setError] = useState("")
   const { register, isLoading } = useAuth()
 
@@ -29,21 +33,46 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
     e.preventDefault()
     setError("")
 
-    if (!formData.name || !formData.email || !formData.password) {
+    if (!formData.name || !formData.email || !formData.password || !confirmPassword) {
       setError("Please fill in all fields")
       return
     }
 
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters")
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(formData.email)) {
+      setError("Please enter a valid email address")
       return
     }
 
-    const result = await register(formData)
-    if (result.success) {
-      onSuccess?.()
-    } else {
-      setError(result.error || "Registration failed")
+    // Stronger password policy: ≥8 chars with letters and numbers
+    const strongPass = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d!@#$%^&*()_+=\-{}[\]":;'`~<>,.?/\\|]{8,}$/
+    if (!strongPass.test(formData.password)) {
+      setError("Password must be at least 8 characters and include letters and numbers")
+      return
+    }
+
+    if (formData.password !== confirmPassword) {
+      setError("Passwords do not match")
+      return
+    }
+
+    try {
+      const result = await register(formData)
+      if (result.success) {
+        if (onSuccess) {
+          onSuccess()
+        } else {
+          // Handle redirection after successful registration
+          const redirect = searchParams?.get("redirect") || "/dashboard"
+          router.push(redirect)
+        }
+      } else {
+        setError(result.error || "Registration failed")
+      }
+    } catch (error) {
+      console.error("Registration error:", error)
+      setError("An unexpected error occurred during registration")
     }
   }
 
@@ -100,6 +129,18 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             />
           </div>
 
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Confirm Password</label>
+        <Input
+          type="password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          placeholder="Re-enter your password"
+          disabled={isLoading}
+          className="text-sm md:text-base"
+        />
+      </div>
+
           <div className="space-y-2">
             <label className="text-sm font-medium">I am a:</label>
             <select
@@ -110,7 +151,6 @@ export function RegisterForm({ onSuccess }: RegisterFormProps) {
             >
               <option value="student">Student</option>
               <option value="teacher">Teacher</option>
-              <option value="administrator">Administrator</option>
             </select>
           </div>
 

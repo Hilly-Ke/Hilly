@@ -11,6 +11,8 @@ export function middleware(request: NextRequest) {
 
   const authToken = request.cookies.get("auth_token")?.value
   if (!authToken) {
+    // Allow SSR to render login but avoid redirect loops from /login
+    if (pathname.startsWith("/login")) return NextResponse.next()
     const loginUrl = new URL("/login", request.url)
     loginUrl.searchParams.set("redirect", pathname)
     return NextResponse.redirect(loginUrl)

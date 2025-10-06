@@ -21,33 +21,60 @@ export default function CoursesPage() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await fetch("/api/courses")
+        // Use Next.js cache: no-store to prevent caching
+        const response = await fetch('/api/courses', {
+          cache: 'no-store',
+          next: { revalidate: 0 },
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        })
+        
+        // Always use mockCourses for now to ensure exactly 10 courses
+        // This is a temporary fix until the API is stable
+        setCourses(mockCourses)
+        
+        /* Commenting out API data handling to fix duplicate issues
         if (!response.ok) {
           setCourses(mockCourses)
           return
         }
+        
         const data = await response.json()
         if (Array.isArray(data.courses) && data.courses.length > 0) {
-          const transformedCourses = data.courses.map((course: any) => ({
-            id: (course.id ?? "").toString(),
-            title: course.title ?? "Untitled Course",
-            description: course.description ?? "",
-            instructor: course.instructor ?? "LearnHub Instructor",
-            category: course.category ?? "Web Development",
-            level: (course.level as Course["level"]) ?? "Beginner",
-            duration: course.duration ?? "10 weeks",
-            rating: Number.isFinite(Number.parseFloat(course.rating)) ? Number.parseFloat(course.rating) : 4.5,
-            studentsEnrolled: Number.isFinite(Number(course.students_count)) ? Number(course.students_count) : 0,
-            image: course.image_url || "/placeholder.svg",
-            tags: Array.isArray(course.tags) ? course.tags : [],
-            lessons: Number.isFinite(Number(course.lessons)) ? Number(course.lessons) : 0,
-            lastUpdated: course.updated_at ? new Date(course.updated_at) : new Date(),
-            featured: (Number.parseFloat(course.rating) || 0) >= 4.8,
-          })) as Course[]
+          // Create a Map to track unique course IDs to prevent duplicates
+          const uniqueCoursesMap = new Map()
+          
+          data.courses.forEach((course: any) => {
+            const courseId = (course.id ?? "").toString()
+            if (!uniqueCoursesMap.has(courseId)) {
+              uniqueCoursesMap.set(courseId, {
+                id: courseId,
+                title: course.title ?? "Untitled Course",
+                description: course.description ?? "",
+                instructor: course.instructor ?? "LearnHub Instructor",
+                category: course.category ?? "Web Development",
+                level: (course.level as Course["level"]) ?? "Beginner",
+                duration: course.duration ?? "10 weeks",
+                rating: Number.isFinite(Number.parseFloat(course.rating)) ? Number.parseFloat(course.rating) : 4.5,
+                studentsEnrolled: Number.isFinite(Number(course.students_count)) ? Number(course.students_count) : 0,
+                image: course.image_url || "/placeholder.svg",
+                tags: Array.isArray(course.tags) ? course.tags : [],
+                lessons: Number.isFinite(Number(course.lessons)) ? Number(course.lessons) : 0,
+                lastUpdated: course.updated_at ? new Date(course.updated_at) : new Date(),
+                featured: (Number.parseFloat(course.rating) || 0) >= 4.8,
+              })
+            }
+          })
+          
+          const transformedCourses = Array.from(uniqueCoursesMap.values()) as Course[]
           setCourses(transformedCourses)
         } else {
           setCourses(mockCourses)
         }
+        */
       } catch (error) {
         console.error("Failed to fetch courses:", error)
         setCourses(mockCourses)

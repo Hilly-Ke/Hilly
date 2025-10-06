@@ -10,6 +10,14 @@ cp .env.example .env # fill in values
 pnpm dev
 ```
 
+## Mock accounts
+
+- Student: `student@learnhub.com / password123`
+- Teacher: `teacher@learnhub.com / password123`
+- Admin: `admin@learnhub.com / password123`
+
+Login sets a short-lived cookie `auth_token` for access to `/dashboard` and `/admin`. Logout clears it.
+
 ## Required environment variables
 
 - `DATABASE_URL`
@@ -28,3 +36,4 @@ pnpm dev
 
 - Admin and dashboard routes are protected by middleware; unauthenticated users are redirected to `/login`.
 - API routes validate input with `zod` (example: files delete, materials upload).
+- SSR/CSR: Lesson lists are deterministic; localStorage dates are revived to real Date objects.

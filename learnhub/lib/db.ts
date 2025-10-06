@@ -63,8 +63,9 @@ export async function getAllUsers() {
 export async function getAllCourses() {
   try {
     const result = await sql`
-      SELECT * FROM courses
-      ORDER BY created_at DESC
+      SELECT DISTINCT ON (id) *
+      FROM courses
+      ORDER BY id, created_at DESC
     `
     return result
   } catch (error) {

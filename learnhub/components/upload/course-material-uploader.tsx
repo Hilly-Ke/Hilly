@@ -30,8 +30,8 @@ export function CourseMaterialUploader() {
 
   const selectedCourseData = mockCourses.find((c) => c.id === selectedCourse)
   const availableLessons =
-    selectedCourseData?.curriculum?.flatMap((module) =>
-      module.lessons.map((lesson) => ({
+    selectedCourseData?.curriculum?.flatMap((module: any) =>
+      module.lessons.map((lesson: any) => ({
         id: `${selectedCourse}-${module.id}-${lesson.id}`,
         title: `${module.title} - ${lesson.title}`,
       })),

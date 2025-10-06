@@ -14,6 +14,21 @@ export interface Course {
   lessons: number
   lastUpdated: Date
   featured: boolean
+  curriculum?: CourseModule[]
+}
+
+export interface CourseModule {
+  id: string
+  title: string
+  lessons: CourseLesson[]
+}
+
+export interface CourseLesson {
+  id: string
+  title: string
+  duration: string
+  videoUrl?: string
+  description?: string
 }
 
 export const courseCategories = [
@@ -46,6 +61,48 @@ export const mockCourses: Course[] = [
     lessons: 45,
     lastUpdated: new Date("2024-01-15"),
     featured: true,
+    curriculum: [
+      {
+        id: "module-1",
+        title: "HTML Fundamentals",
+        lessons: [
+          {
+            id: "lesson-1-1",
+            title: "Introduction to HTML",
+            duration: "45 minutes",
+            videoUrl: "/videos/html-intro.mp4",
+            description: "Learn the basics of HTML structure and elements."
+          },
+          {
+            id: "lesson-1-2",
+            title: "HTML Forms and Inputs",
+            duration: "60 minutes",
+            videoUrl: "/videos/html-forms.mp4",
+            description: "Create interactive forms using HTML."
+          }
+        ]
+      },
+      {
+        id: "module-2",
+        title: "CSS Styling",
+        lessons: [
+          {
+            id: "lesson-2-1",
+            title: "CSS Selectors and Properties",
+            duration: "55 minutes",
+            videoUrl: "/videos/css-selectors.mp4",
+            description: "Master CSS selectors and common properties."
+          },
+          {
+            id: "lesson-2-2",
+            title: "Responsive Design with CSS",
+            duration: "65 minutes",
+            videoUrl: "/videos/responsive-css.mp4",
+            description: "Create websites that work on any device size."
+          }
+        ]
+      }
+    ]
   },
   {
     id: "2",
@@ -113,35 +170,35 @@ export const mockCourses: Course[] = [
   },
   {
     id: "6",
-    title: "Business Analytics",
-    description: "Use data to make informed business decisions and drive organizational growth.",
-    instructor: "Robert Wilson",
+    title: "Business Analytics for Decision Making",
+    description: "Learn how to analyze business data to make informed decisions and drive organizational success.",
+    instructor: "Jennifer Adams",
     category: "Business Analytics",
-    level: "Intermediate",
-    duration: "12 weeks",
-    rating: 4.6,
-    studentsEnrolled: 820,
+    level: "Beginner",
+    duration: "8 weeks",
+    rating: 4.7,
+    studentsEnrolled: 520,
     image: "/placeholder-z4i6m.png",
-    tags: ["Excel", "SQL", "Tableau", "Business Intelligence"],
-    lessons: 42,
-    lastUpdated: new Date("2024-02-05"),
-    featured: false,
+    tags: ["Data Analysis", "Business Intelligence", "Decision Making", "Reporting"],
+    lessons: 32,
+    lastUpdated: new Date("2024-02-25"),
+    featured: true,
   },
   {
     id: "7",
-    title: "React Native Mobile Development",
-    description: "Build cross-platform mobile applications using React Native and JavaScript.",
-    instructor: "Alex Martinez",
+    title: "Flutter Mobile App Development",
+    description: "Build beautiful, natively compiled applications for mobile, web, and desktop from a single codebase using Flutter.",
+    instructor: "Daniel Park",
     category: "Mobile Development",
-    level: "Intermediate",
-    duration: "14 weeks",
-    rating: 4.7,
-    studentsEnrolled: 650,
+    level: "Beginner",
+    duration: "10 weeks",
+    rating: 4.8,
+    studentsEnrolled: 750,
     image: "/mobile-app-development.png",
-    tags: ["React Native", "JavaScript", "Mobile UI", "API Integration"],
-    lessons: 48,
-    lastUpdated: new Date("2024-01-30"),
-    featured: false,
+    tags: ["Flutter", "Dart", "Mobile UI", "Cross-platform"],
+    lessons: 40,
+    lastUpdated: new Date("2024-03-01"),
+    featured: true,
   },
   {
     id: "8",
@@ -159,9 +216,47 @@ export const mockCourses: Course[] = [
     lastUpdated: new Date("2024-02-12"),
     featured: true,
   },
+  {
+    id: "11",
+    title: "Digital Photography Fundamentals",
+    description: "Master the basics of digital photography, from camera settings to composition techniques.",
+    instructor: "James Wilson",
+    category: "Photography",
+    level: "Beginner",
+    duration: "6 weeks",
+    rating: 4.8,
+    studentsEnrolled: 1350,
+    image: "/placeholder.jpg",
+    tags: ["Camera Basics", "Composition", "Lighting", "Photo Editing"],
+    lessons: 24,
+    lastUpdated: new Date("2024-01-28"),
+    featured: true,
+  },
+  {
+    id: "14",
+    title: "AWS Cloud Computing Essentials",
+    description: "Learn the fundamentals of cloud computing with Amazon Web Services (AWS).",
+    instructor: "David Johnson",
+    category: "Cloud Computing",
+    level: "Beginner",
+    duration: "10 weeks",
+    rating: 4.8,
+    studentsEnrolled: 1120,
+    image: "/placeholder-z4i6m.png",
+    tags: ["AWS", "EC2", "S3", "Cloud Architecture"],
+    lessons: 40,
+    lastUpdated: new Date("2024-02-15"),
+    featured: true,
+  },
 ]
 
 export const courses = mockCourses
+
+// Function to add a new course to the mockCourses array
+export function addNewCourse(course: Course) {
+  mockCourses.push(course);
+  return course;
+}
 
 export function filterCourses(
   courses: Course[],

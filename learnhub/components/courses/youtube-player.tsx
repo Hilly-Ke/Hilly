@@ -6,8 +6,8 @@ import type { VideoMaterial } from "@/lib/course-materials"
 
 declare global {
 	interface Window {
-		YT: any
-		onYouTubeIframeAPIReady: (() => void) | undefined
+		YT: any;
+		onYouTubeIframeAPIReady: (() => void) | undefined;
 	}
 }
 
@@ -64,7 +64,8 @@ export function YouTubePlayer({ video, onComplete, onProgress }: YouTubePlayerPr
 							}
 						}
 					},
-			})
+				},
+			});
 		}
 
 		const startPolling = () => {
@@ -126,7 +127,7 @@ export function YouTubePlayer({ video, onComplete, onProgress }: YouTubePlayerPr
 	return (
 		<Card className="w-full">
 			<CardContent className="p-0">
-				<div className="relative w-full aspect-video">
+				<div className="relative w-full aspect-video max-h-[70vh]">
 					<div ref={containerRef} className="absolute inset-0 w-full h-full rounded-t-lg" />
 				</div>
 			</CardContent>

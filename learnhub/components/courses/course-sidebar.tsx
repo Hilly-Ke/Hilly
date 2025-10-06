@@ -39,6 +39,15 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
     alert(`Successfully enrolled in ${course.title}!`)
   }
 
+  const handleCancel = () => {
+    if (!user) return
+    if (!confirm("Are you sure you want to cancel learning this course? Your progress will be removed.")) return
+    progressTracker.unenrollFromCourse(user.id, course.id)
+    const progress = progressTracker.getCourseProgress(user.id, course.id)
+    setCourseProgress(progress)
+    alert("You have unenrolled from this course.")
+  }
+
   const isEnrolled = courseProgress !== null
 
   return (
@@ -79,6 +88,10 @@ export function CourseSidebar({ course }: CourseSidebarProps) {
                 }}
               >
                 {courseProgress?.overallProgress === 0 ? "Start Learning" : "Continue Learning"}
+              </Button>
+
+              <Button variant="outline" className="w-full" onClick={handleCancel}>
+                Cancel Learning
               </Button>
             </div>
           )}

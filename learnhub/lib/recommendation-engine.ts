@@ -207,7 +207,17 @@ export class RecommendationEngine {
     // Sort by score (highest first)
     scoredCourses.sort((a, b) => b.score - a.score)
 
-    return scoredCourses.map((item) => item.course)
+    // If interests exist, bias list so matching categories appear first even among similar scores
+    const courseList = scoredCourses.map((item) => item.course)
+    if (preferences.interests && preferences.interests.length > 0) {
+      const interestSet = new Set(preferences.interests.map((i) => i.toLowerCase()))
+      courseList.sort((a, b) => {
+        const aMatch = interestSet.has(a.category.toLowerCase()) ? 1 : 0
+        const bMatch = interestSet.has(b.category.toLowerCase()) ? 1 : 0
+        return bMatch - aMatch
+      })
+    }
+    return courseList
   }
 
   private calculateCourseScore(course: Course, preferences: UserPreferences): number {

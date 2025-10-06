@@ -38,14 +38,14 @@ export function MaterialViewer({ materials, onMaterialComplete }: MaterialViewer
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
       {/* Materials List */}
       <div className="lg:col-span-1">
         <Card>
           <CardHeader>
             <CardTitle>Course Materials</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-2 max-h-[50vh] md:max-h-none overflow-y-auto">
             {materials.map((material) => (
               <div
                 key={material.id}

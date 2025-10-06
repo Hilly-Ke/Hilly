@@ -1,19 +1,28 @@
 "use client"
 
+import { useState } from "react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { MessageSquare, ThumbsUp, ThumbsDown, Pin, Lock, Paperclip, FileText, ImageIcon } from "lucide-react"
-import { type ForumPost, getTimeAgo } from "@/lib/community"
+import { MessageSquare, ThumbsUp, ThumbsDown, Pin, Lock, Paperclip, FileText, ImageIcon, ChevronDown, ChevronUp } from "lucide-react"
+import { type ForumPost, getTimeAgo, type Reply } from "@/lib/community"
+import { CommentForm } from "./comment-form"
+import { CommentList } from "./comment-list"
+import { useAuth } from "@/contexts/auth-context"
 
 interface PostCardProps {
   post: ForumPost
   onPostClick?: (postId: string) => void
   onVote?: (postId: string, type: "up" | "down") => void
+  onAddComment?: (postId: string, comment: string) => void
+  onVoteComment?: (postId: string, commentId: string, type: "up" | "down") => void
 }
 
-export function PostCard({ post, onPostClick, onVote }: PostCardProps) {
+export function PostCard({ post, onPostClick, onVote, onAddComment, onVoteComment }: PostCardProps) {
+  const [showComments, setShowComments] = useState(false)
+  const { isAuthenticated } = useAuth()
+  
   const getRoleColor = (role: string) => {
     switch (role) {
       case "administrator":
@@ -25,6 +34,10 @@ export function PostCard({ post, onPostClick, onVote }: PostCardProps) {
       default:
         return "bg-gray-100 text-gray-800"
     }
+  }
+  
+  const toggleComments = () => {
+    setShowComments(!showComments)
   }
 
   const getFileIcon = (type: string) => {
@@ -113,12 +126,35 @@ export function PostCard({ post, onPostClick, onVote }: PostCardProps) {
                 </Button>
               </div>
 
-              <Button variant="ghost" size="sm" onClick={() => onPostClick?.(post.id)} className="h-8 px-2">
+              <Button variant="ghost" size="sm" onClick={toggleComments} className="h-8 px-2">
                 <MessageSquare className="h-4 w-4 mr-1" />
                 {post.replies.length} {post.replies.length === 1 ? "reply" : "replies"}
+                {showComments ? <ChevronUp className="h-3 w-3 ml-1" /> : <ChevronDown className="h-3 w-3 ml-1" />}
               </Button>
             </div>
           </div>
+          
+          {showComments && (
+            <div className="mt-6 border-t pt-4">
+              <h4 className="text-sm font-medium mb-4">Comments ({post.replies.length})</h4>
+              <CommentList 
+                comments={post.replies} 
+                onVote={(commentId, type) => onVoteComment?.(post.id, commentId, type)} 
+              />
+              <div className="mt-4">
+                <CommentForm 
+                  postId={post.id} 
+                  onSubmit={(postId, comment) => {
+                    if (onAddComment) {
+                      onAddComment(postId, comment)
+                      return Promise.resolve()
+                    }
+                    return Promise.reject("No comment handler provided")
+                  }} 
+                />
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

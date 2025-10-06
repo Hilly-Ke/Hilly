@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { LoginForm } from "@/components/auth/login-form"
 import { useAuth } from "@/contexts/auth-context"
 import { BookOpen } from "lucide-react"
@@ -9,15 +9,17 @@ import { BookOpen } from "lucide-react"
 export default function LoginPage() {
   const router = useRouter()
   const { isAuthenticated } = useAuth()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/")
+      router.push("/dashboard")
     }
   }, [isAuthenticated, router])
 
   const handleLoginSuccess = () => {
-    router.push("/")
+    const redirect = searchParams?.get("redirect") || "/dashboard"
+    router.push(redirect)
   }
 
   return (
